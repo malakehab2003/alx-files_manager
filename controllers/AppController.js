@@ -2,8 +2,8 @@ import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 export async function getStatus(req, res) {
-  const db_status = dbClient.isAlive();
-  const redis_status = redisClient.isAlive();
+  const db_status = await dbClient.isAlive();
+  const redis_status = await redisClient.isAlive();
 
   return res.status(200).json({ "redis": redis_status, "db": db_status });
 }

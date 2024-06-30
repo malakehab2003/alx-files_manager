@@ -13,15 +13,7 @@ class DBClient {
       useUnifiedTopology: true,
     });
 
-    this.connect();
-  }
-
-  async connect() {
-    try {
-      await this.client.connect();
-    } catch (err) {
-      console.error('Failed to connect to MongoDB', err);
-    }
+    this.client.connect();
   }
 
   isAlive() {
