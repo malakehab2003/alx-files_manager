@@ -159,9 +159,9 @@ export const getIndex = async (req, res) => {
 
   const itemsCount = 20;
 
-  const { parentId, page = 0 } = req.query;
+  const { parentId, page = '0' } = req.query;
 
-  const skip = page * itemsCount;
+  const skip = parseInt(page) * itemsCount;
 
   const files = await dbClient.files.aggregate([
     { $match: { parentId: parentId || 0, } },
