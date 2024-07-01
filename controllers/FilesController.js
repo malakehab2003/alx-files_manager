@@ -4,7 +4,31 @@ import { ObjectId } from 'mongodb';
 import { getUserFromToken } from './UsersController';
 import dbClient from '../utils/db';
 
-export default async function postUpload(req, res) {
+export async function getParentId(req, res) {
+  const parentId = req.body.parentId || 0;
+
+  if (parentId !== 0) {
+    const parentFile = await dbClient
+      .client
+      .db(dbClient.database)
+      .collection('files')
+      .findOne({
+        _id: new ObjectId(parentId),
+      });
+
+    if (!parentFile) {
+      return res.status(400).send({ error: 'Parent not found' });
+    }
+
+    if (parentFile.type !== 'folder') {
+      return res.status(400).send({ error: 'Parent is not a folder' });
+    }
+  }
+
+  return parentId;
+}
+
+export async function postUpload(req, res) {
   // get the token from the header
   const header = req.header('X-Token');
 
@@ -39,25 +63,7 @@ export default async function postUpload(req, res) {
   // get the parent id if set
   // if set check if the parent file exists
   // if not set make it equal to zero
-  const parentId = req.body.parentId || 0;
-
-  if (parentId !== 0) {
-    const parentFile = await dbClient
-      .client
-      .db(dbClient.database)
-      .collection('files')
-      .findOne({
-        _id: new ObjectId(parentId),
-      });
-
-    if (!parentFile) {
-      return res.status(400).send({ error: 'Parent not found' });
-    }
-
-    if (parentFile.type !== 'folder') {
-      return res.status(400).send({ error: 'Parent is not a folder' });
-    }
-  }
+  const parentId = await getParentId(req, res);
 
   // get is public from body set it to false as default
   const isPublic = req.body.isPublic || false;
