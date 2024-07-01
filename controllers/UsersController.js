@@ -31,6 +31,14 @@ export async function getUserFromToken(header) {
   return user;
 }
 
+export const getUserFromHeader = async (req) => {
+  const header = req.header('X-Token');
+
+  // get the user of the token
+  const user = await getUserFromToken(header);
+  return user;
+};
+
 export async function postNew(req, res) {
   const { email, password } = req.body;
 

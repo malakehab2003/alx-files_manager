@@ -5,6 +5,8 @@ class DBClient {
     this.host = process.env.DB_HOST || 'localhost';
     this.port = process.env.DB_PORT || 27017;
     this.database = process.env.DB_DATABASE || 'files_manager';
+    this.files;
+    this.users;
 
     const url = `mongodb://${this.host}:${this.port}/${this.database}`;
 
@@ -14,6 +16,8 @@ class DBClient {
     });
 
     this.client.connect();
+    this.files = this.client.db(this.database).collection('files');
+    this.users = this.client.db(this.database).collection('users');
   }
 
   isAlive() {
@@ -22,7 +26,7 @@ class DBClient {
 
   async nbUsers() {
     try {
-      return await this.client.db(this.database).collection('users').countDocuments();
+      return await this.users.countDocuments();
     } catch (err) {
       console.error('Error counting users:', err);
       return 0;
@@ -31,12 +35,13 @@ class DBClient {
 
   async nbFiles() {
     try {
-      return await this.client.db(this.database).collection('files').countDocuments();
+      return await this.files.countDocuments();
     } catch (err) {
       console.error('Error counting files:', err);
       return 0;
     }
   }
+
 }
 
 const dbClient = new DBClient();

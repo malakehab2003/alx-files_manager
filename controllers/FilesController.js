@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
-import { getUserFromToken } from './UsersController';
+import { getUserFromHeader } from './UsersController';
 import dbClient from '../utils/db';
 
 export async function getParentId(req, res) {
@@ -9,9 +9,7 @@ export async function getParentId(req, res) {
 
   if (parentId !== 0) {
     const parentFile = await dbClient
-      .client
-      .db(dbClient.database)
-      .collection('files')
+      .files
       .findOne({
         _id: new ObjectId(parentId),
       });
@@ -30,10 +28,7 @@ export async function getParentId(req, res) {
 
 export async function postUpload(req, res) {
   // get the token from the header
-  const header = req.header('X-Token');
-
-  // get the user of the token
-  const user = await getUserFromToken(header);
+  const user = await getUserFromHeader(req);
   if (!user) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
@@ -77,9 +72,7 @@ export async function postUpload(req, res) {
   // if type is folder return it
   if (type === 'folder') {
     const result = await dbClient
-      .client
-      .db(dbClient.database)
-      .collection('files')
+      .files
       .insertOne({
         userId,
         name: filename,
@@ -118,9 +111,7 @@ export async function postUpload(req, res) {
   });
 
   const result = await dbClient
-    .client
-    .db(dbClient.database)
-    .collection('files')
+    .files
     .insertOne({
       userId,
       name: filename,
@@ -139,3 +130,45 @@ export async function postUpload(req, res) {
     parentId,
   });
 }
+
+export const getShow = async (req, res) => {
+  // get the token from the header
+  const user = await getUserFromHeader(req);
+  if (!user) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+
+  const { id } = req.params;
+
+  const file = await dbClient.files.findOne({
+    _id: new ObjectId(id),
+    userId: new ObjectId(user._id)
+  });
+
+  if (!file) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+  return res.send(file);
+};
+
+export const getIndex = async (req, res) => {
+  const user = await getUserFromHeader(req);
+  if (!user) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+
+  const itemsCount = 20;
+
+  const { parentId, page = 0 } = req.query;
+
+  const skip = page * itemsCount;
+
+  const files = await dbClient.files.aggregate([
+    { $match: { parentId: parentId || 0 } },
+    { $skip: skip },
+    { $limit: itemsCount }
+  ]).toArray();
+
+  return res.send(files);
+
+};
