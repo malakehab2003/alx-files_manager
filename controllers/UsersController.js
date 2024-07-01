@@ -35,16 +35,16 @@ export async function postNew(req, res) {
   const { email, password } = req.body;
 
   if (!email) {
-    res.status(400).send({ error: 'Missing email' });
+    return res.status(400).send({ error: 'Missing email' });
   }
 
   if (!password) {
-    res.status(400).send({ error: 'Missing password' });
+    return res.status(400).send({ error: 'Missing password' });
   }
 
   const user = await dbClient.client.db(dbClient.database).collection('users').findOne({ email });
   if (user) {
-    res.status(400).send({ error: 'Already exist' });
+    return res.status(400).send({ error: 'Already exist' });
   }
 
   const hashedPass = sha1(password);
