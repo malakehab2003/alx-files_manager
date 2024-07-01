@@ -143,6 +143,7 @@ export const getShow = async (req, res) => {
   const file = await dbClient.files.findOne({
     _id: new ObjectId(id),
     userId: new ObjectId(user._id),
+    type: { $ne: 'folder' }
   });
 
   if (!file) {
