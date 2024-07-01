@@ -142,7 +142,7 @@ export const getShow = async (req, res) => {
 
   const file = await dbClient.files.findOne({
     _id: new ObjectId(id),
-    userId: new ObjectId(user._id)
+    userId: new ObjectId(user._id),
   });
 
   if (!file) {
@@ -166,9 +166,8 @@ export const getIndex = async (req, res) => {
   const files = await dbClient.files.aggregate([
     { $match: { parentId: parentId || 0 } },
     { $skip: skip },
-    { $limit: itemsCount }
+    { $limit: itemsCount },
   ]).toArray();
 
   return res.send(files);
-
 };

@@ -38,5 +38,4 @@ router.get('/files', FilesController.getIndex);
 
 router.get('/files/:id', FilesController.getShow);
 
-
 export default router;
