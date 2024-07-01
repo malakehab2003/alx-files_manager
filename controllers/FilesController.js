@@ -145,7 +145,7 @@ export const getShow = async (req, res) => {
     userId: new ObjectId(user._id),
   });
 
-  if (!file || file.type === 'folder') {
+  if (!file) {
     return res.status(404).send({ error: 'Not found' });
   }
   return res.send(file);
@@ -161,10 +161,10 @@ export const getIndex = async (req, res) => {
 
   const { parentId, page = '0' } = req.query;
 
-  const skip = parseInt(page) * itemsCount;
+  const skip = parseInt(page, 10) * itemsCount;
 
   const files = await dbClient.files.aggregate([
-    { $match: { parentId: parentId || 0, } },
+    { $match: { parentId: parentId || 0 } },
     { $skip: skip },
     { $limit: itemsCount },
   ]).toArray();
