@@ -9,8 +9,8 @@ export async function getStatus(req, res) {
 }
 
 export async function getStats(req, res) {
-  const filesNo = await DBClient.nbUsers();
-  const usersNo = await DBClient.nbFiles();
+  const usersNo = await DBClient.nbUsers();
+  const filesNo = await DBClient.nbFiles();
 
   return res.status(200).json({ users: usersNo, files: filesNo });
 }
