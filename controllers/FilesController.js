@@ -34,6 +34,9 @@ export async function postUpload(req, res) {
 
   // get the user of the token
   const user = await getUserFromToken(header);
+  if (!user) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
 
   // get the filename from body and check if not null
   const filename = req.body.name;
