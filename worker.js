@@ -23,19 +23,18 @@ fileQueue.process((job, done) => {
     }
     const { localPath } = file;
     const imageBuffer = fs.readFileSync(localPath);
-    const widths = [500, 250, 100];
-    for (let index = 0; index < width.length; index++) {
-      const width = widths[index];
-
-      const thumbnail = await imageThumbnail(localPath, {
-        width: width
+    const thumbnailPromises = [500, 250, 100].map(async (width) => {
+      const thumbnail = await imageThumbnails(imageBuffer, {
+        width,
       });
-      await fs.writeFile(`${localPath}_${width}`, thumbnail, (err) => {
+      fs.writeFile(`${localPath}_${width}`, thumbnail, (err) => {
         if (err) {
           throw err;
         }
         return true;
       });
-    }
+    });
+    await Promise.all(thumbnailPromises);
+    done();
   });
 });

@@ -2,8 +2,8 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import { lookup } from 'mime-types';
-import { getUserFromHeader } from './UsersController';
 import Queue from 'bull';
+import { getUserFromHeader } from './UsersController';
 import dbClient from '../utils/db';
 
 const folder = process.env.FOLDER_PATH || '/tmp/files_manager';
@@ -131,7 +131,7 @@ export async function postUpload(req, res) {
   if (type === 'image') {
     fileQueue.add({
       userId: user._id.toString(),
-      fileId: result.insertedId.toString()
+      fileId: result.insertedId.toString(),
     });
   }
   return res.status(201).send({
@@ -259,10 +259,12 @@ export const getFile = async (req, res) => {
 
   try {
     const mimeType = lookup(name);
-    const data = fs.readFileSync(localPath);
+    const { size } = req.query;
+    const filePath = !size ? localPath : `${localPath}_${size}`;
+    const data = fs.readFileSync(filePath);
     res.type(mimeType || 'application/octet-stream');
     return res.send(data);
   } catch (error) {
-    return res.status(404).send({ error: 'Not found' });
+    return res.status(404).send({ error: error });
   }
 };
