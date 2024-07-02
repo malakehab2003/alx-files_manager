@@ -164,7 +164,7 @@ export const getIndex = async (req, res) => {
   const skip = parseInt(page, 10) * itemsCount;
 
   const files = await dbClient.files.aggregate([
-    { $match: { parentId: parentId || 0 } },
+    { $match: { parentId: parentId && parentId != '0' ? parentId : 0 } },
     { $skip: skip },
     { $limit: itemsCount },
   ]).toArray();
