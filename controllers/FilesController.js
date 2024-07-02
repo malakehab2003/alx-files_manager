@@ -169,10 +169,15 @@ export async function getShow(req, res) {
 
   const { id } = req.params;
 
-  const file = await dbClient.files.findOne({
-    _id: new ObjectId(id),
-    userId: user._id,
-  });
+  let file;
+  try {
+    file = await dbClient.files.findOne({
+      _id: new ObjectId(id),
+      userId: user._id,
+    });
+  } catch (err) {
+    return res.status(404).send({ error: 'Not found' });
+  }
 
   if (!file) {
     return res.status(404).send({ error: 'Not found' });
@@ -209,15 +214,19 @@ export async function putPublish(req, res) {
   }
 
   const { id } = req.params;
-
-  const file = (await dbClient.files.findOneAndUpdate({
-    _id: new ObjectId(id),
-    userId: user._id,
-  }, {
-    $set: { isPublic: true },
-  }, {
-    returnDocument: 'after',
-  })).value;
+  let file;
+  try {
+    file = (await dbClient.files.findOneAndUpdate({
+      _id: new ObjectId(id),
+      userId: user._id,
+    }, {
+      $set: { isPublic: true },
+    }, {
+      returnDocument: 'after',
+    })).value;
+  } catch (err) {
+    return res.status(404).send({ error: 'Not found' });
+  }
 
   if (!file) {
     return res.status(404).send({ error: 'Not found' });
@@ -235,14 +244,19 @@ export async function putUnpublish(req, res) {
 
   const { id } = req.params;
 
-  const file = (await dbClient.files.findOneAndUpdate({
-    _id: new ObjectId(id),
-    userId: user._id,
-  }, {
-    $set: { isPublic: false },
-  }, {
-    returnDocument: 'after',
-  })).value;
+  let file;
+  try {
+    file = (await dbClient.files.findOneAndUpdate({
+      _id: new ObjectId(id),
+      userId: user._id,
+    }, {
+      $set: { isPublic: false },
+    }, {
+      returnDocument: 'after',
+    })).value;
+  } catch (err) {
+    return res.status(404).send({ error: 'Not found' });
+  }
 
   if (!file) {
     return res.status(404).send({ error: 'Not found' });
@@ -253,9 +267,14 @@ export async function putUnpublish(req, res) {
 
 export async function getFile(req, res) {
   const { id } = req.params;
-  const file = await dbClient.files.findOne({
-    _id: new ObjectId(id),
-  });
+  let file;
+  try {
+    file = await dbClient.files.findOne({
+      _id: new ObjectId(id),
+    });
+  } catch (err) {
+    return res.status(404).send({ error: 'Not found' });
+  }
 
   if (!file) {
     return res.status(404).send({ error: 'Not found' });
