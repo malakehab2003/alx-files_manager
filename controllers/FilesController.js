@@ -171,3 +171,53 @@ export const getIndex = async (req, res) => {
 
   return res.send(files);
 };
+
+export const putPublish = async (req, res) => {
+  // get the token from the header
+  const user = await getUserFromHeader(req);
+  if (!user) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+
+  const { id } = req.params;
+
+  const file = (await dbClient.files.findOneAndUpdate({
+    _id: new ObjectId(id),
+    userId: user._id,
+  }, {
+    $set: { isPublic: true },
+  }, {
+    returnDocument: 'after',
+  })).value;
+
+  if (!file) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+
+  return res.send(file);
+};
+
+export const putUnpublish = async (req, res) => {
+  // get the token from the header
+  const user = await getUserFromHeader(req);
+  if (!user) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+
+  const { id } = req.params;
+
+  const file = (await dbClient.files.findOneAndUpdate({
+    _id: new ObjectId(id),
+    userId: user._id,
+  }, {
+    $set: { isPublic: false },
+  }, {
+    returnDocument: 'after',
+  })).value;
+
+  if (!file) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+
+  return res.send(file);
+};
