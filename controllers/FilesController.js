@@ -1,12 +1,13 @@
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
-import { readFile } from 'fs/promises';
 import { lookup } from 'mime-types';
 import { getUserFromHeader } from './UsersController';
+import Queue from 'bull';
 import dbClient from '../utils/db';
 
 const folder = process.env.FOLDER_PATH || '/tmp/files_manager';
+const fileQueue = new Queue('fileQueue');
 
 export async function getParentId(req, res) {
   const parentId = req.body.parentId || 0;
@@ -127,7 +128,12 @@ export async function postUpload(req, res) {
       parentId,
       localPath,
     });
-
+  if (type === 'image') {
+    fileQueue.add({
+      userId: user._id.toString(),
+      fileId: result.insertedId.toString()
+    });
+  }
   return res.status(201).send({
     id: result.insertedId,
     userId,
@@ -253,7 +259,7 @@ export const getFile = async (req, res) => {
 
   try {
     const mimeType = lookup(name);
-    const data = await readFile(localPath);
+    const data = fs.readFileSync(localPath);
     res.type(mimeType || 'application/octet-stream');
     return res.send(data);
   } catch (error) {
