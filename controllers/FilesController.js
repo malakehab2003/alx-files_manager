@@ -223,7 +223,7 @@ export async function putPublish(req, res) {
     return res.status(404).send({ error: 'Not found' });
   }
 
-  return res.send(file);
+  return res.send(fileFormat(file));
 }
 
 export async function putUnpublish(req, res) {
@@ -248,7 +248,7 @@ export async function putUnpublish(req, res) {
     return res.status(404).send({ error: 'Not found' });
   }
 
-  return res.send(file);
+  return res.send(fileFormat(file));
 }
 
 export async function getFile(req, res) {
