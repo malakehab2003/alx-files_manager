@@ -150,7 +150,7 @@ export async function postUpload(req, res) {
   });
 }
 
-const fileFormat = (file) => {
+function fileFormat(file) {
   const res = {
     id: file._id,
     ...file,
