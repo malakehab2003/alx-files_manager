@@ -158,7 +158,7 @@ function fileFormat(file) {
   delete res._id;
   delete res.localPath;
   return res;
-};
+}
 
 export async function getShow(req, res) {
   // get the token from the header
