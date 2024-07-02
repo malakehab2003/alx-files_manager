@@ -150,7 +150,7 @@ export async function postUpload(req, res) {
   });
 }
 
-export const getShow = async (req, res) => {
+export async function getShow(req, res) {
   // get the token from the header
   const user = await getUserFromHeader(req);
   if (!user) {
@@ -170,7 +170,7 @@ export const getShow = async (req, res) => {
   return res.send(file);
 };
 
-export const getIndex = async (req, res) => {
+export async function getIndex(req, res) {
   const user = await getUserFromHeader(req);
   if (!user) {
     return res.status(401).send({ error: 'Unauthorized' });
@@ -191,7 +191,7 @@ export const getIndex = async (req, res) => {
   return res.send(files);
 };
 
-export const putPublish = async (req, res) => {
+export async function putPublish(req, res) {
   // get the token from the header
   const user = await getUserFromHeader(req);
   if (!user) {
@@ -216,7 +216,7 @@ export const putPublish = async (req, res) => {
   return res.send(file);
 };
 
-export const putUnpublish = async (req, res) => {
+export async function putUnpublish(req, res) {
   // get the token from the header
   const user = await getUserFromHeader(req);
   if (!user) {
@@ -241,7 +241,7 @@ export const putUnpublish = async (req, res) => {
   return res.send(file);
 };
 
-export const getFile = async (req, res) => {
+export async function getFile(req, res) {
   const { id } = req.params;
   const file = await dbClient.files.findOne({
     _id: new ObjectId(id),

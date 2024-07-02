@@ -31,7 +31,7 @@ export async function getUserFromToken(header) {
   return user;
 }
 
-export const getUserFromHeader = async (req) => {
+export async function getUserFromHeader(req) {
   const header = req.header('X-Token');
 
   // get the user of the token
