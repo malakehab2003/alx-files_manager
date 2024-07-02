@@ -168,7 +168,7 @@ export async function getShow(req, res) {
     return res.status(404).send({ error: 'Not found' });
   }
   return res.send(file);
-};
+}
 
 export async function getIndex(req, res) {
   const user = await getUserFromHeader(req);
@@ -189,7 +189,7 @@ export async function getIndex(req, res) {
   ]).toArray();
 
   return res.send(files);
-};
+}
 
 export async function putPublish(req, res) {
   // get the token from the header
@@ -214,7 +214,7 @@ export async function putPublish(req, res) {
   }
 
   return res.send(file);
-};
+}
 
 export async function putUnpublish(req, res) {
   // get the token from the header
@@ -239,7 +239,7 @@ export async function putUnpublish(req, res) {
   }
 
   return res.send(file);
-};
+}
 
 export async function getFile(req, res) {
   const { id } = req.params;
@@ -273,4 +273,4 @@ export async function getFile(req, res) {
   } catch (error) {
     return res.status(404).send({ error });
   }
-};
+}
