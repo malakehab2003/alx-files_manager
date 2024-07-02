@@ -150,6 +150,16 @@ export async function postUpload(req, res) {
   });
 }
 
+const fileFormat = (file) => {
+  const res = {
+    id: file._id,
+    ...file,
+  };
+  delete res._id;
+  delete res.localPath;
+  return res;
+};
+
 export async function getShow(req, res) {
   // get the token from the header
   const user = await getUserFromHeader(req);
@@ -167,7 +177,7 @@ export async function getShow(req, res) {
   if (!file) {
     return res.status(404).send({ error: 'Not found' });
   }
-  return res.send(file);
+  return res.send(fileFormat(file));
 }
 
 export async function getIndex(req, res) {
@@ -182,11 +192,11 @@ export async function getIndex(req, res) {
 
   const skip = parseInt(page, 10) * itemsCount;
 
-  const files = await dbClient.files.aggregate([
+  const files = (await dbClient.files.aggregate([
     { $match: { parentId: parentId && parentId !== '0' ? parentId : 0 } },
     { $skip: skip },
     { $limit: itemsCount },
-  ]).toArray();
+  ]).toArray()).map((file) => fileFormat(file));
 
   return res.send(files);
 }
