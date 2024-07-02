@@ -1,8 +1,12 @@
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
+import { readFile } from 'fs/promises';
+import { lookup } from 'mime-types';
 import { getUserFromHeader } from './UsersController';
 import dbClient from '../utils/db';
+
+const folder = process.env.FOLDER_PATH || '/tmp/files_manager';
 
 export async function getParentId(req, res) {
   const parentId = req.body.parentId || 0;
@@ -91,24 +95,27 @@ export async function postUpload(req, res) {
     });
   }
 
-  const folder = process.env.FOLDER_PATH || '/tmp/files_manager';
   const file = uuidv4();
   const localPath = `${folder}/${file}`;
   const fileData = Buffer.from(data, 'base64');
 
-  await fs.mkdir(folder, { recursive: true }, (err) => {
-    if (err) {
-      return res.status(400).send({ error: err.message });
-    }
-    return true;
-  });
+  try {
+    await fs.mkdir(folder, { recursive: true }, (err) => {
+      if (err) {
+        throw err;
+      }
+      return true;
+    });
 
-  await fs.writeFile(localPath, fileData, (err) => {
-    if (err) {
-      return res.status(400).send({ error: err.message });
-    }
-    return true;
-  });
+    await fs.writeFile(localPath, fileData, (err) => {
+      if (err) {
+        throw err;
+      }
+      return true;
+    });
+  } catch (err) {
+    return res.status(400).send({ error: err.message });
+  }
 
   const result = await dbClient
     .files
@@ -164,7 +171,7 @@ export const getIndex = async (req, res) => {
   const skip = parseInt(page, 10) * itemsCount;
 
   const files = await dbClient.files.aggregate([
-    { $match: { parentId: parentId && parentId != '0' ? parentId : 0 } },
+    { $match: { parentId: parentId && parentId !== '0' ? parentId : 0 } },
     { $skip: skip },
     { $limit: itemsCount },
   ]).toArray();
@@ -220,4 +227,36 @@ export const putUnpublish = async (req, res) => {
   }
 
   return res.send(file);
+};
+
+export const getFile = async (req, res) => {
+  const { id } = req.params;
+  const file = await dbClient.files.findOne({
+    _id: new ObjectId(id),
+  });
+
+  if (!file) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+
+  const { isPublic, name, localPath } = file;
+  const user = await getUserFromHeader(req);
+  if (!isPublic && (
+    !user || user._id.toString() !== file.userId.toString()
+  )) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+
+  if (file.type === 'folder') {
+    return res.status(400).send({ error: 'A folder doesn\'t have content' });
+  }
+
+  try {
+    const mimeType = lookup(name);
+    const data = await readFile(localPath);
+    res.type(mimeType || 'application/octet-stream');
+    return res.send(data);
+  } catch (error) {
+    return res.status(404).send({ error: 'Not found' });
+  }
 };
