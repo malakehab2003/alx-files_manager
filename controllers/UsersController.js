@@ -37,7 +37,7 @@ export async function getUserFromHeader(req) {
   // get the user of the token
   const user = await getUserFromToken(header);
   return user;
-};
+}
 
 export async function postNew(req, res) {
   const { email, password } = req.body;
