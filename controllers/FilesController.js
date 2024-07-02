@@ -20,11 +20,11 @@ export async function getParentId(req, res) {
       });
 
     if (!parentFile) {
-      return res.status(400).send({ error: 'Parent not found' });
+      throw new Error('Parent not found');
     }
 
     if (parentFile.type !== 'folder') {
-      return res.status(400).send({ error: 'Parent is not a folder' });
+      throw new Error('Parent is not a folder');
     }
   }
 
@@ -66,7 +66,12 @@ export async function postUpload(req, res) {
   // get the parent id if set
   // if set check if the parent file exists
   // if not set make it equal to zero
-  const parentId = await getParentId(req, res);
+  let parentId;
+  try {
+    parentId = await getParentId(req, res);
+  } catch (err) {
+    return res.status(400).send({ error: err.message });
+  }
 
   // get is public from body set it to false as default
   const isPublic = req.body.isPublic || false;
@@ -128,14 +133,15 @@ export async function postUpload(req, res) {
       parentId,
       localPath,
     });
+  const insertedId = result.insertedId;
   if (type === 'image') {
     fileQueue.add({
       userId: user._id.toString(),
-      fileId: result.insertedId.toString(),
+      fileId: insertedId.toString(),
     });
   }
   return res.status(201).send({
-    id: result.insertedId,
+    id: insertedId,
     userId,
     name: filename,
     type,
