@@ -9,7 +9,7 @@ import dbClient from '../utils/db';
 const folder = process.env.FOLDER_PATH || '/tmp/files_manager';
 const fileQueue = new Queue('fileQueue');
 
-export async function getParentId(req, res) {
+export async function getParentId(req) {
   const parentId = req.body.parentId || 0;
 
   if (parentId !== 0) {
@@ -68,7 +68,7 @@ export async function postUpload(req, res) {
   // if not set make it equal to zero
   let parentId;
   try {
-    parentId = await getParentId(req, res);
+    parentId = await getParentId(req);
   } catch (err) {
     return res.status(400).send({ error: err.message });
   }
@@ -133,7 +133,7 @@ export async function postUpload(req, res) {
       parentId,
       localPath,
     });
-  const insertedId = result.insertedId;
+  const { insertedId } = result;
   if (type === 'image') {
     fileQueue.add({
       userId: user._id.toString(),
@@ -271,6 +271,6 @@ export const getFile = async (req, res) => {
     res.type(mimeType || 'application/octet-stream');
     return res.send(data);
   } catch (error) {
-    return res.status(404).send({ error: error });
+    return res.status(404).send({ error });
   }
 };

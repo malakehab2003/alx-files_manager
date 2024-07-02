@@ -5,8 +5,6 @@ class DBClient {
     this.host = process.env.DB_HOST || 'localhost';
     this.port = process.env.DB_PORT || 27017;
     this.database = process.env.DB_DATABASE || 'files_manager';
-    this.files;
-    this.users;
 
     const url = `mongodb://${this.host}:${this.port}/${this.database}`;
 
@@ -41,7 +39,6 @@ class DBClient {
       return 0;
     }
   }
-
 }
 
 const dbClient = new DBClient();
