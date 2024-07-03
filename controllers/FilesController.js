@@ -169,16 +169,8 @@ export async function getShow(req, res) {
 
   const { id } = req.params;
 
-  let fileID;
-
-  try {
-    fileID = new ObjectId(id);
-  } catch (error) {
-    return res.status(404).send({ error: 'Not found' });
-  }
-
   const file = await dbClient.files.findOne({
-    _id: fileID,
+    _id: new ObjectId(id),
     userId: user._id,
   });
 
@@ -198,7 +190,12 @@ export async function getIndex(req, res) {
 
   const { parentId, page = '0' } = req.query;
 
-  const skip = parseInt(page, 10) * itemsCount;
+  const skip = !Number.isNaN(Number(page)) ? Number(page) * itemsCount : 0;
+
+  const folder = await dbClient.files.findOne({ parentId });
+  if (!folder || folder.type !== 'folder') {
+    return res.status(200).send([]);
+  }
 
   const files = (await dbClient.files.aggregate([
     { $match: { parentId: parentId || 0 } },
