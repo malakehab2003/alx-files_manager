@@ -169,9 +169,7 @@ export async function getShow(req, res) {
 
   const { id } = req.params;
 
-  let file;
-
-  file = await dbClient.files.findOne({
+  const file = await dbClient.files.findOne({
     _id: new ObjectId(id),
     userId: user._id,
   });
@@ -211,9 +209,8 @@ export async function putPublish(req, res) {
   }
 
   const { id } = req.params;
-  let file;
 
-  file = (await dbClient.files.findOneAndUpdate({
+  const file = (await dbClient.files.findOneAndUpdate({
     _id: new ObjectId(id),
     userId: user._id,
   }, {
@@ -221,7 +218,6 @@ export async function putPublish(req, res) {
   }, {
     returnDocument: 'after',
   })).value;
-
 
   if (!file) {
     return res.status(404).send({ error: 'Not found' });
@@ -239,9 +235,7 @@ export async function putUnpublish(req, res) {
 
   const { id } = req.params;
 
-  let file;
-
-  file = (await dbClient.files.findOneAndUpdate({
+  const file = (await dbClient.files.findOneAndUpdate({
     _id: new ObjectId(id),
     userId: user._id,
   }, {
@@ -249,7 +243,6 @@ export async function putUnpublish(req, res) {
   }, {
     returnDocument: 'after',
   })).value;
-
 
   if (!file) {
     return res.status(404).send({ error: 'Not found' });
@@ -260,12 +253,10 @@ export async function putUnpublish(req, res) {
 
 export async function getFile(req, res) {
   const { id } = req.params;
-  let file;
 
-  file = await dbClient.files.findOne({
+  const file = await dbClient.files.findOne({
     _id: new ObjectId(id),
   });
-
 
   if (!file) {
     return res.status(404).send({ error: 'Not found' });
