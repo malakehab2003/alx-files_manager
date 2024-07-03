@@ -169,9 +169,17 @@ export async function getShow(req, res) {
 
   const { id } = req.params;
 
+  let fileID;
+
+  try {
+    fileID = new ObjectId(id);
+  } catch (error) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+
   const file = await dbClient.files.findOne({
-    _id: new ObjectId(id),
-    userId: new ObjectId(user._id),
+    _id: fileID,
+    userId: user._id,
   });
 
   if (!file) {
@@ -193,7 +201,7 @@ export async function getIndex(req, res) {
   const skip = parseInt(page, 10) * itemsCount;
 
   const files = (await dbClient.files.aggregate([
-    { $match: { parentId: !!parentId ? parentId : 0 } },
+    { $match: { parentId: parentId || 0 } },
     { $skip: skip },
     { $limit: itemsCount },
   ]).toArray()).map((file) => fileFormat(file));
