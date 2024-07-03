@@ -192,7 +192,7 @@ export async function getIndex(req, res) {
 
   const skip = !Number.isNaN(Number(page)) ? Number(page) * itemsCount : 0;
 
-  const folder = await dbClient.files.findOne({ parentId });
+  const folder = await dbClient.files.findOne({ _id: parentId });
   if (!folder || folder.type !== 'folder') {
     return res.status(200).send([]);
   }
