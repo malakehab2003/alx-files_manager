@@ -193,7 +193,7 @@ export async function getIndex(req, res) {
   const skip = !Number.isNaN(Number(page)) ? Number(page) * itemsCount : 0;
 
   const files = (await dbClient.files.aggregate([
-    { $match: { parentId: new ObjectId(parentId) || '0' } },
+    { $match: { parentId: parentId ? new ObjectId(parentId) : '0' } },
     { $skip: skip },
     { $limit: itemsCount },
   ]).toArray()).map((file) => fileFormat(file));
