@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import { lookup } from 'mime-types';
@@ -192,13 +192,8 @@ export async function getIndex(req, res) {
 
   const skip = !Number.isNaN(Number(page)) ? Number(page) * itemsCount : 0;
 
-  const folder = await dbClient.files.findOne({ _id: parentId });
-  if (!folder || folder.type !== 'folder') {
-    return res.status(200).send([]);
-  }
-
   const files = (await dbClient.files.aggregate([
-    { $match: { parentId: parentId || 0 } },
+    { $match: { parentId: new ObjectId(parentId) || '0' } },
     { $skip: skip },
     { $limit: itemsCount },
   ]).toArray()).map((file) => fileFormat(file));
