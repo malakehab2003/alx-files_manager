@@ -282,6 +282,6 @@ export async function getFile(req, res) {
     res.type(mimeType || 'application/octet-stream');
     return res.send(data);
   } catch (error) {
-    return res.status(404).send({ error });
+    return res.status(404).send({ error: 'Not found' });
   }
 }
