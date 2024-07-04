@@ -1,4 +1,5 @@
-import fs from 'fs/promises';
+import fs from 'fs';
+import { promisify } from "util";
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import { lookup } from 'mime-types';
@@ -106,14 +107,14 @@ export async function postUpload(req, res) {
   const fileData = Buffer.from(data, 'base64');
 
   try {
-    await fs.mkdir(folder, { recursive: true }, (err) => {
+    await promisify(fs.mkdir).bind(fs)(folder, { recursive: true }, (err) => {
       if (err) {
         throw err;
       }
       return true;
     });
 
-    await fs.writeFile(localPath, fileData, (err) => {
+    await promisify(fs.writeFile).bind(fs)(localPath, fileData, (err) => {
       if (err) {
         throw err;
       }
