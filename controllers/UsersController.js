@@ -65,7 +65,7 @@ export async function postNew(req, res) {
     password: hashedPass,
   });
 
-  userQueue.add({ userId: result.insertedId.toString() })
+  userQueue.add({ userId: result.insertedId.toString() });
 
   return res.status(201).send({ id: result.insertedId, email });
 }
