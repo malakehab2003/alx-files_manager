@@ -2,9 +2,11 @@ import fs from 'fs';
 import Queue from 'bull';
 import imageThumbnails from 'image-thumbnail';
 import { ObjectId } from 'mongodb';
+import { log } from 'console';
 import dbClient from './utils/db';
 
 const fileQueue = new Queue('fileQueue');
+const userQueue = new Queue('userQueue');
 
 fileQueue.process((job, done) => {
   const { userId, fileId } = job.data;
@@ -37,4 +39,19 @@ fileQueue.process((job, done) => {
     await Promise.all(thumbnailPromises);
     done();
   });
+});
+
+userQueue.process(async (job, done) => {
+  const { userId } = job.data;
+  if (!userId) {
+    throw new Error('Missing userId');
+  }
+  const user = await dbClient.users.findOne({
+    _id: new ObjectId(userId),
+  });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  log(`Welcome ${user.email}!`);
+  done();
 });

@@ -1,7 +1,10 @@
 import sha1 from 'sha1';
 import { ObjectId } from 'mongodb';
+import Queue from 'bull';
 import dbClient from '../utils/db';
 import RedisClient from '../utils/redis';
+
+const userQueue = new Queue('userQueue');
 
 export async function getUserFromToken(header) {
   if (!header) {
@@ -61,6 +64,8 @@ export async function postNew(req, res) {
     email,
     password: hashedPass,
   });
+
+  userQueue.add({ userId: result.insertedId.toString() })
 
   return res.status(201).send({ id: result.insertedId, email });
 }
